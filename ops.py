@@ -9,16 +9,7 @@ import pandas as pd
 
 
 def read_data(input_path, debug=True):
-    """Read nasdaq stocks data.
-
-    Args:
-        input_path (str): directory to nasdaq dataset.
-
-    Returns:
-        X (np.ndarray): features.
-        y (np.ndarray): ground truth.
-
-    """
+    
     df = pd.read_csv(input_path)
     df2 = df.drop(["Close","trade","trend"], axis=1)
     X = df2.values
