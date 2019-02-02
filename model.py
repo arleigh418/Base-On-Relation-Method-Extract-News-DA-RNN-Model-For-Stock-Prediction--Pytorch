@@ -1,13 +1,4 @@
-"""DA-RNN model initialization.
 
-@author Zhenye Na 05/21/2018
-
-References:
-    [1] Yao Qin, Dongjin Song, Haifeng Chen, Wei Cheng, Guofei Jiang, Garrison W. Cottrell.
-        "A Dual-Stage Attention-Based Recurrent Neural Network for Time Series Prediction"
-        arXiv preprint arXiv:1704.02971 (2017).
-
-"""
 from ops import *
 from torch.autograd import Variable
 
