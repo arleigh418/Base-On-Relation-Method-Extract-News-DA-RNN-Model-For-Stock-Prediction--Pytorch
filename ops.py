@@ -1,12 +1,4 @@
-"""Helper functions.
 
-@author Zhenye Na 05/21/2018
-
-"""
-
-
-# from tqdm import tqdm
-# import matplotlib.pyplot as plt
 
 import numpy as np
 import pandas as pd
