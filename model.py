@@ -1,4 +1,8 @@
+"""Main pipeline of DA-RNN.
 
+@author Zhenye Na 05/21/2018
+
+"""
 from ops import *
 from torch.autograd import Variable
 
