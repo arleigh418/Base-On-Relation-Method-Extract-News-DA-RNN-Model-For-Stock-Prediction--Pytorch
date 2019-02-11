@@ -1,6 +1,6 @@
-"""Main pipeline of DA-RNN.
+"""
 
-@author Zhenye Na 05/21/2018
+Reference  https://github.com/Zhenye-Na/DA-RNN
 
 """
 from ops import *
