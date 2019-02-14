@@ -294,12 +294,7 @@ class DA_rnn(nn.Module):
         # loss_total = loss+loss2+loss3
         loss = loss1+loss2+loss3 
         loss.backward()
-        # print(loss)
-        # loss2.backward(retain_graph=True)
-        # loss3.backward()
-
-        # loss_trade = self.criterion(y_pred,trade_true)
-        # loss_trade.backward()
+        
         
        
         self.encoder_optimizer.step()
