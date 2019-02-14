@@ -360,5 +360,5 @@ class DA_rnn(nn.Module):
         return y_pred_price , torch.max(y_pred_trade,1)[1] , torch.max(y_pred_trend,1)[1]
 
 
-    # def pre():
+    
         
