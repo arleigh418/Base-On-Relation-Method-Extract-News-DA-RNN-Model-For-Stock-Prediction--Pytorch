@@ -292,8 +292,11 @@ class DA_rnn(nn.Module):
         loss2 = self.criterion_trend(y_pred_trend, y_true_trend)
         loss3 = self.criterion_trade(y_pred_trade, y_true_trade)
         # loss_total = loss+loss2+loss3
+        loss1.backward(retain_graph=True)
+        loss2.backward(retain_graph=True)
+        loss3.backward(retain_graph=True)
         loss = loss1+loss2+loss3 
-        loss.backward()
+#         loss.backward()
         
         
        
