@@ -1,8 +1,8 @@
 """
-
 Reference  https://github.com/Zhenye-Na/DA-RNN
-
 """
+# -*- coding: utf-8 -*-
+
 from ops import *
 from torch.autograd import Variable
 
@@ -18,9 +18,15 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
+def get_accuracy(truth, pred):
+     assert len(truth)==len(pred)
+     right = 0
+     for i in range(len(truth)):
+         if truth[i]==pred[i]:
+             right += 1.0
+     return right/len(truth)
 
-
-
+# from IPython import embed
 class Encoder(nn.Module):
     """encoder in DA_RNN."""
 
@@ -35,22 +41,34 @@ class Encoder(nn.Module):
         self.parallel = parallel
         self.T = T
 
-        
+        # Fig 1. Temporal Attention Mechanism: Encoder is LSTM
         self.encoder_lstm = nn.LSTM(
             input_size=self.input_size, hidden_size=self.encoder_num_hidden)
 
-       
+        # Construct Input Attention Mechanism via deterministic attention model
+        # Eq. 8: W_e[h_{t-1}; s_{t-1}] + U_e * x^k
         self.encoder_attn = nn.Linear(
             in_features=2 * self.encoder_num_hidden + self.T - 1, out_features=1, bias=True)
 
     def forward(self, X):
-        
+        """forward.
+
+        Args:
+            X
+
+        """
         X_tilde = Variable(X.data.new(
             X.size(0), self.T - 1, self.input_size).zero_())
         X_encoded = Variable(X.data.new(
             X.size(0), self.T - 1, self.encoder_num_hidden).zero_())
 
-        
+        # Eq. 8, parameters not in nn.Linear but to be learnt
+        # v_e = torch.nn.Parameter(data=torch.empty(
+        #     self.input_size, self.T).uniform_(0, 1), requires_grad=True)
+        # U_e = torch.nn.Parameter(data=torch.empty(
+        #     self.T, self.T).uniform_(0, 1), requires_grad=True)
+
+        # hidden, cell: initial states with dimention hidden_size
         h_n = self._init_states(X)
         s_n = self._init_states(X)
 
@@ -63,13 +81,13 @@ class Encoder(nn.Module):
             x = self.encoder_attn(
                 x.view(-1, self.encoder_num_hidden * 2 + self.T - 1))
 
-            
+            # get weights by softmax
             alpha = F.softmax(x.view(-1, self.input_size))
 
-            
+            # get new input for LSTM
             x_tilde = torch.mul(alpha, X[:, t, :])
 
-            
+            # encoder LSTM
             self.encoder_lstm.flatten_parameters()
             _, final_state = self.encoder_lstm(
                 x_tilde.unsqueeze(0), (h_n, s_n))
@@ -82,15 +100,23 @@ class Encoder(nn.Module):
         return X_tilde, X_encoded
 
     def _init_states(self, X):
-       
-        
+        """Initialize all 0 hidden states and cell states for encoder.
+
+        Args:
+            X
+        Returns:
+            initial_hidden_states
+
+        """
+        # hidden state and cell state [num_layers*num_directions, batch_size, hidden_size]
+        # https://pytorch.org/docs/master/nn.html?#lstm
         initial_states = Variable(X.data.new(
             1, X.size(0), self.encoder_num_hidden).zero_())
         return initial_states
 
 
 class Decoder(nn.Module):
-    
+    """decoder in DA_RNN."""
 
     def __init__(self, T, decoder_num_hidden, encoder_num_hidden):
         """Initialize a decoder in DA_RNN."""
@@ -105,14 +131,14 @@ class Decoder(nn.Module):
         self.lstm_layer = nn.LSTM(
             input_size=1, hidden_size=decoder_num_hidden)
         self.fc = nn.Linear(encoder_num_hidden + 1, 1)
-        self.fc_final_price = nn.Linear(decoder_num_hidden + encoder_num_hidden, 1) #for price
-        self.fc_final_trend = nn.Linear(decoder_num_hidden + encoder_num_hidden, 3) #for trend
-        self.fc_final_trade = nn.Linear(decoder_num_hidden + encoder_num_hidden, 3) #for trade
+        self.fc_final_price = nn.Linear(decoder_num_hidden + encoder_num_hidden, 1)
+        self.fc_final_trend = nn.Linear(decoder_num_hidden + encoder_num_hidden, 3)
+        self.fc_final_trade = nn.Linear(decoder_num_hidden + encoder_num_hidden, 3)
 
         self.fc.weight.data.normal_()
 
     def forward(self, X_encoed, y_prev):
-       
+        """forward."""
         d_n = self._init_states(X_encoed)
         c_n = self._init_states(X_encoed)
 
@@ -124,21 +150,23 @@ class Decoder(nn.Module):
 
             beta = F.softmax(self.attn_layer(
                 x.view(-1, 2 * self.decoder_num_hidden + self.encoder_num_hidden)).view(-1, self.T - 1))
-            
+            # Eqn. 14: compute context vector
+            # batch_size * encoder_hidden_size
             context = torch.bmm(beta.unsqueeze(1), X_encoed)[:, 0, :]
             if t < self.T - 1:
-                
+                # Eqn. 15
+                # batch_size * 1
                 y_tilde = self.fc(
                     torch.cat((context, y_prev[:, t].unsqueeze(1)), dim=1))
-                
+                # Eqn. 16: LSTM
                 self.lstm_layer.flatten_parameters()
                 _, final_states = self.lstm_layer(
                     y_tilde.unsqueeze(0), (d_n, c_n))
-               
+                # 1 * batch_size * decoder_num_hidden
                 d_n = final_states[0]
-             
+                # 1 * batch_size * decoder_num_hidden
                 c_n = final_states[1]
-        
+        # Eqn. 22: final output
         final_temp_y = torch.cat((d_n[0], context), dim=1)
         y_pred_price = self.fc_final_price(final_temp_y)
         y_pred_trend = F.softmax(self.fc_final_trend(final_temp_y))
@@ -146,8 +174,16 @@ class Decoder(nn.Module):
         return y_pred_price, y_pred_trend, y_pred_trade
 
     def _init_states(self, X):
-       
-        
+        """Initialize all 0 hidden states and cell states for encoder.
+
+        Args:
+            X
+        Returns:
+            initial_hidden_states
+
+        """
+        # hidden state and cell state [num_layers*num_directions, batch_size, hidden_size]
+        # https://pytorch.org/docs/master/nn.html?#lstm
         initial_states = X.data.new(
             1, X.size(0), self.decoder_num_hidden).zero_()
         return initial_states
@@ -164,7 +200,7 @@ class DA_rnn(nn.Module):
                  learning_rate,
                  epochs,
                  parallel=False):
-       
+        """da_rnn initialization."""
         super(DA_rnn, self).__init__()
         self.encoder_num_hidden = encoder_num_hidden
         self.decoder_num_hidden = decoder_num_hidden
@@ -191,6 +227,8 @@ class DA_rnn(nn.Module):
         self.criterion_price = nn.MSELoss()
         self.criterion_trend = nn.CrossEntropyLoss()
         self.criterion_trade = nn.CrossEntropyLoss()
+    
+
 
         if self.parallel:
             self.encoder = nn.DataParallel(self.encoder)
@@ -203,18 +241,24 @@ class DA_rnn(nn.Module):
                                                           self.Decoder.parameters()),
                                             lr=self.learning_rate)
         
-        
-        self.train_timesteps = int(self.X[:243].shape[0]) 
+        # Training set
+        self.train_timesteps = int(self.X[:243].shape[0]) #改
         self.input_size = self.X.shape[1]
 
     def train(self):
-       
+        best_dev_acc = 0.0 #trade
+        
+        """training process."""
         iter_per_epoch = int(np.ceil(self.train_timesteps * 1. / self.batch_size))
         self.iter_losses = np.zeros(self.epochs * iter_per_epoch)
         self.epoch_losses = np.zeros(self.epochs)
-        
+        # trade = self.X[:, 64]
+        # trend = self.X[:, 65]
+        # print(trade)
+        # print(trend)
         n_iter = 0
-        
+        # print(trade)
+        # print(trend)
         for epoch in range(self.epochs):
             if self.shuffle:
                 ref_idx = np.random.permutation(self.train_timesteps - self.T)
@@ -224,23 +268,33 @@ class DA_rnn(nn.Module):
             idx = 0
 
             while (idx < self.train_timesteps):
-               
+                # get the indices of X_train
                 indices = ref_idx[idx:(idx + self.batch_size)]
-               
+                # x = np.zeros((self.T - 1, len(indices), self.input_size))
                 x = np.zeros((len(indices), self.T - 1, self.input_size))
                 y_prev = np.zeros((len(indices), self.T - 1))
                 y_gt = self.y[indices + self.T]
                 trade_gt = self.trade[indices + self.T]
                 trend_gt = self.trend[indices + self.T]
-                
+                # trade_gt = self.trade[indices + self.T]
+                # format x into 3D tensor
                 for bs in range(len(indices)):
                     x[bs, :, :] = self.X[indices[bs]:(indices[bs] + self.T - 1), :]
                     y_prev[bs, :] = self.y[indices[bs]:(indices[bs] + self.T - 1)]
                    
 
-                loss = self.train_forward(x, y_prev, y_gt,trend_gt,trade_gt)
+                loss,acc_trade,acc_trend = self.train_forward(x, y_prev, y_gt,trend_gt,trade_gt)
                 
-
+                #loss_trade = self.train_forward2(x, y_prev,trade_gt)
+                if acc_trade > best_dev_acc:
+                    best_dev_acc = acc_trade
+                    # print('save it')
+                    torch.save(model.state_dict(), 'best_model_acc' + str(int(acc_trade*10000))+ str(int(acc_trend*10000)) + '.model')
+                    # no_up = 0
+                # else:
+                #     no_up += 1
+                #     if no_up >= 1000:
+                #         exit()
                 self.iter_losses[epoch * iter_per_epoch + idx // self.batch_size] = loss
                 
 
@@ -254,18 +308,18 @@ class DA_rnn(nn.Module):
                         param_group['lr'] = param_group['lr'] * 0.8
 
                 self.epoch_losses[epoch] = np.mean(self.iter_losses[range(epoch * iter_per_epoch, (epoch + 1) * iter_per_epoch)])
-                
+                # self.epoch_losses2[epoch] = np.mean(self.iter_losses2[range(epoch * iter_per_epoch, (epoch + 1) * iter_per_epoch)])
+                # self.epoch_losses3[epoch] = np.mean(self.iter_losses3[range(epoch * iter_per_epoch, (epoch + 1) * iter_per_epoch)])
+
             if epoch % 10 == 0:
                 print ("Epochs: ", epoch, " Iterations: ", n_iter, " Loss: ", self.epoch_losses[epoch])
                 
 
-            
-                
-
+    
 
 
     def train_forward(self, X, y_prev, y_gt,trend_gt,trade_gt):
-        
+        # zero gradients
         self.encoder_optimizer.zero_grad()
         self.decoder_optimizer.zero_grad()
 
@@ -280,23 +334,34 @@ class DA_rnn(nn.Module):
         
         
         y_true_trend = torch.from_numpy(
-            trend_gt).type(torch.LongTensor)
-    
+            trend_gt).type(torch.LongTensor) #cuda
+        # y_true_trend =y_true_trend.view(-1, 3)
         y_true_trade = torch.from_numpy(
-            trade_gt).type(torch.LongTensor)
-        
-        
+            trade_gt).type(torch.LongTensor) #cuda
+        # y_true_trade =y_true_trade.view(-1, 3)
+        y_trade_dev = torch.max(y_pred_trade,1)[1]
+        y_trend_dev =torch.max(y_pred_trend,1)[1] 
+        # print(len(y_pred_trade))
+        # print(len(y_trade_dev))
+        acc_trade = get_accuracy(y_true_trade,y_trade_dev)
+        acc_trend = get_accuracy(y_true_trend,y_trend_dev)
+
         # print(y_pred_trend)
         # print(y_true_trend)
         loss1 = self.criterion_price(y_pred_price, y_true_price)
         loss2 = self.criterion_trend(y_pred_trend, y_true_trend)
         loss3 = self.criterion_trade(y_pred_trade, y_true_trade)
         # loss_total = loss+loss2+loss3
+        # loss = loss1+loss2+loss3 
         loss1.backward(retain_graph=True)
         loss2.backward(retain_graph=True)
-        loss3.backward(retain_graph=True)
-        loss = loss1+loss2+loss3 
-#         loss.backward()
+        loss3.backward()
+        loss = loss1+loss2+loss3
+        print('loss_price:',loss1)
+        print('loss_trend:',loss2)
+        print('loss_trade:',loss3)
+        print('acc_trade:',acc_trade,'acc_trend:',acc_trend)
+
         
         
        
@@ -304,16 +369,14 @@ class DA_rnn(nn.Module):
         self.decoder_optimizer.step()
         
 
-        return loss.item()
-       
+        return loss.item(),acc_trade,acc_trend
+        # ,loss_trade.item()
 
     
 
     def val(self):
         """validation."""
         pass
-
-
 
 
     def test(self, on_train=False):
@@ -323,8 +386,6 @@ class DA_rnn(nn.Module):
             y_pred_price = np.zeros(self.train_timesteps - self.T + 1)
             y_pred_trend = np.zeros(self.train_timesteps - self.T + 1)
             y_pred_trade = np.zeros(self.train_timesteps - self.T + 1)
-            # print(len(y_pred_price)) #234
-            # print(self.T)#10
         else:
             y_pred_price = np.zeros(self.X.shape[0] - self.train_timesteps)
             y_pred_trend = np.zeros(self.X.shape[0] - self.train_timesteps)
@@ -350,7 +411,7 @@ class DA_rnn(nn.Module):
             _, input_encoded = self.Encoder(Variable(torch.from_numpy(X).type(torch.FloatTensor)))
             # y_pred[i:(i + self.batch_size)] = self.Decoder(input_encoded, y_history).cpu().data.numpy()[:, 0]
             y_pred_price, y_pred_trend, y_pred_trade = self.Decoder(input_encoded, y_history)
-
+            
             y_pred_price = y_pred_price[i:(i + self.batch_size)]
             y_pred_price = y_pred_price.cpu().detach().numpy()[:, 0]
             # y_pred_trend =  y_pred_trend[i:(i + self.batch_size)]
@@ -363,5 +424,14 @@ class DA_rnn(nn.Module):
         return y_pred_price , torch.max(y_pred_trade,1)[1] , torch.max(y_pred_trend,1)[1]
 
 
+X, y,trade,trend= read_data("2330.TW_deal_sim.csv", debug=False)
+
+# model = DA_rnn(X, y, trade, trend, 10, 512, 512, 256, 0.001, 50000)
+model = torch.load('GOODONE.pkl',map_location='cpu')
+# model.load_state_dict(torch.load('best_model_acc83808380.model',map_location='cpu')) #this is for model.state_dict()
+# y_train = model.train()
+
+y_pred = model.test()
+print(y_pred)
     
         
