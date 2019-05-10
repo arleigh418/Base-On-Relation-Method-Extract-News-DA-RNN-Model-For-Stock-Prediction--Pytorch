@@ -242,7 +242,7 @@ class DA_rnn(nn.Module):
                                             lr=self.learning_rate)
         
         # Training set
-        self.train_timesteps = int(self.X[:243].shape[0]) #改
+        self.train_timesteps = int(self.X[:243].shape[0]) 
         self.input_size = self.X.shape[1]
 
     def train(self):
