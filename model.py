@@ -246,7 +246,7 @@ class DA_rnn(nn.Module):
         self.input_size = self.X.shape[1]
 
     def train(self):
-        best_dev_acc = 0.0 #trade
+#         best_dev_acc = 0.0 #trade
         
         """training process."""
         iter_per_epoch = int(np.ceil(self.train_timesteps * 1. / self.batch_size))
@@ -286,10 +286,6 @@ class DA_rnn(nn.Module):
                 loss,acc_trade,acc_trend = self.train_forward(x, y_prev, y_gt,trend_gt,trade_gt)
                 
                 #loss_trade = self.train_forward2(x, y_prev,trade_gt)
-                if acc_trade > best_dev_acc:
-                    best_dev_acc = acc_trade
-                    # print('save it')
-                    torch.save(model.state_dict(), 'best_model_acc' + str(int(acc_trade*10000))+ str(int(acc_trend*10000)) + '.model')
                     # no_up = 0
                 # else:
                 #     no_up += 1
@@ -312,7 +308,7 @@ class DA_rnn(nn.Module):
                 # self.epoch_losses3[epoch] = np.mean(self.iter_losses3[range(epoch * iter_per_epoch, (epoch + 1) * iter_per_epoch)])
 
             if epoch % 10 == 0:
-                print ("Epochs: ", epoch, " Iterations: ", n_iter, " Loss: ", self.epoch_losses[epoch])
+                print ("Epochs: ", epoch, " Iterations: ", n_iter, " Loss: ", self.epoch_losses[epoch],'acc_trade: ',acc_trade ,'acc_trend: ',acc_trend)
                 
 
     
@@ -426,10 +422,11 @@ class DA_rnn(nn.Module):
 
 X, y,trade,trend= read_data("2330.TW_deal_sim.csv", debug=False)
 
-# model = DA_rnn(X, y, trade, trend, 10, 512, 512, 256, 0.001, 50000)
-model = torch.load('GOODONE.pkl',map_location='cpu')
+model = DA_rnn(X, y, trade, trend, 10, 512, 512, 256, 0.001, 50000)
+# model = torch.load('GOODONE.pkl',map_location='cpu')
 # model.load_state_dict(torch.load('best_model_acc83808380.model',map_location='cpu')) #this is for model.state_dict()
-# y_train = model.train()
+y_train = model.train()
+torch.save(y_train,'model.pkl')
 
 y_pred = model.test()
 print(y_pred)
