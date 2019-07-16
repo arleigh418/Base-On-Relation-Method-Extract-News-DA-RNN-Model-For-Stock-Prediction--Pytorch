@@ -246,19 +246,15 @@ class DA_rnn(nn.Module):
         self.input_size = self.X.shape[1]
 
     def train(self):
-#         best_dev_acc = 0.0 #trade
+        
         
         """training process."""
         iter_per_epoch = int(np.ceil(self.train_timesteps * 1. / self.batch_size))
         self.iter_losses = np.zeros(self.epochs * iter_per_epoch)
         self.epoch_losses = np.zeros(self.epochs)
-        # trade = self.X[:, 64]
-        # trend = self.X[:, 65]
-        # print(trade)
-        # print(trend)
+        
         n_iter = 0
-        # print(trade)
-        # print(trend)
+        
         for epoch in range(self.epochs):
             if self.shuffle:
                 ref_idx = np.random.permutation(self.train_timesteps - self.T)
@@ -285,8 +281,7 @@ class DA_rnn(nn.Module):
 
                 loss,acc_trade,acc_trend = self.train_forward(x, y_prev, y_gt,trend_gt,trade_gt)
                 
-                #loss_trade = self.train_forward2(x, y_prev,trade_gt)
-                    # no_up = 0
+                
                 # else:
                 #     no_up += 1
                 #     if no_up >= 1000:
@@ -304,8 +299,7 @@ class DA_rnn(nn.Module):
                         param_group['lr'] = param_group['lr'] * 0.8
 
                 self.epoch_losses[epoch] = np.mean(self.iter_losses[range(epoch * iter_per_epoch, (epoch + 1) * iter_per_epoch)])
-                # self.epoch_losses2[epoch] = np.mean(self.iter_losses2[range(epoch * iter_per_epoch, (epoch + 1) * iter_per_epoch)])
-                # self.epoch_losses3[epoch] = np.mean(self.iter_losses3[range(epoch * iter_per_epoch, (epoch + 1) * iter_per_epoch)])
+                
 
             if epoch % 10 == 0:
                 print ("Epochs: ", epoch, " Iterations: ", n_iter, " Loss: ", self.epoch_losses[epoch],'acc_trade: ',acc_trade ,'acc_trend: ',acc_trend)
@@ -331,10 +325,10 @@ class DA_rnn(nn.Module):
         
         y_true_trend = torch.from_numpy(
             trend_gt).type(torch.LongTensor) #cuda
-        # y_true_trend =y_true_trend.view(-1, 3)
+        
         y_true_trade = torch.from_numpy(
             trade_gt).type(torch.LongTensor) #cuda
-        # y_true_trade =y_true_trade.view(-1, 3)
+        
         y_trade_dev = torch.max(y_pred_trade,1)[1]
         y_trend_dev =torch.max(y_pred_trend,1)[1] 
         # print(len(y_pred_trade))
@@ -347,8 +341,7 @@ class DA_rnn(nn.Module):
         loss1 = self.criterion_price(y_pred_price, y_true_price)
         loss2 = self.criterion_trend(y_pred_trend, y_true_trend)
         loss3 = self.criterion_trade(y_pred_trade, y_true_trade)
-        # loss_total = loss+loss2+loss3
-        # loss = loss1+loss2+loss3 
+        
         loss1.backward(retain_graph=True)
         loss2.backward(retain_graph=True)
         loss3.backward()
@@ -366,7 +359,7 @@ class DA_rnn(nn.Module):
         
 
         return loss.item(),acc_trade,acc_trend
-        # ,loss_trade.item()
+        
 
     
 
@@ -410,10 +403,10 @@ class DA_rnn(nn.Module):
             
             y_pred_price = y_pred_price[i:(i + self.batch_size)]
             y_pred_price = y_pred_price.cpu().detach().numpy()[:, 0]
-            # y_pred_trend =  y_pred_trend[i:(i + self.batch_size)]
-            # y_pred_trend =  y_pred_trend.cpu().detach().numpy()[:, 0]
-            # y_pred_trade = y_pred_trade[i:(i + self.batch_size)]
-            # y_pred_trade = y_pred_trade.cpu().detach().numpy()[:, 0]
+            y_pred_trend =  y_pred_trend[i:(i + self.batch_size)]
+            
+            y_pred_trade = y_pred_trade[i:(i + self.batch_size)]
+            
             
             
             i += self.batch_size
