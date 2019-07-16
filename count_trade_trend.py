@@ -5,9 +5,9 @@ import matplotlib.pyplot as plt
 
 data = pd.read_csv('2330.TW_deal_sim.csv')
 price = data['Close']
-# price[0,243]
+
 x_p = np.array(price)#:243
-# x_price
+
 x_price = x_p[0:243]
 
 i = []
@@ -76,9 +76,9 @@ for n,g in enumerate(p):
     
 
 ##0持平 1買 2賣
-# len(q)
+
 data_trade = pd.DataFrame(p)
-# data_trade
+
 data_trade.to_csv('2330trade.csv')
 
 plt.plot(x_range,x_p)
