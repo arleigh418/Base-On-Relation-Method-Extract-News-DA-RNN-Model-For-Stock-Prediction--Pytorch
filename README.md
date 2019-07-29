@@ -8,6 +8,8 @@ This porject is referenced this paper:
 
 This model based on:  https://github.com/Zhenye-Na/DA-RNN
 
+We use FASTTEXT to deal with news data , you can reference this   : https://github.com/arleigh418/Word-Embedding-With-Gensim
+
 We use the 'ta' package to count technical analysis in our data,please reference here: https://github.com/bukosabino/ta
 
 
