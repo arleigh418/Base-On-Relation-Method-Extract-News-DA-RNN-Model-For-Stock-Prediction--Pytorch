@@ -8,7 +8,7 @@ This porject is referenced this paper:
 
 This model based on:  https://github.com/Zhenye-Na/DA-RNN
 
-We use FASTTEXT to deal with news data , you can reference this   : https://github.com/arleigh418/Word-Embedding-With-Gensim
+We use FASTTEXT to deal with news data ,the method that training fasttext and count relation between news(Cosine) you can reference this   : https://github.com/arleigh418/Word-Embedding-With-Gensim   (Cosine method is in doc2vec_count_cos.py)
 
 We use the 'ta' package to count technical analysis in our data,please reference here: https://github.com/bukosabino/ta
 
