@@ -1,4 +1,5 @@
-# Base-On-Word-Embedding-DA-RNN-Model-For-Stock-Prediction
+# Base-On-Relation-Method-Extract-News-DA-RNN-Model-For-Stock-Prediction
+
 
 Run model.py 
 
