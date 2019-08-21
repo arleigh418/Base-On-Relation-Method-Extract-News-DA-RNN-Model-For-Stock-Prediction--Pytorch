@@ -1,7 +1,7 @@
 # Base-On-Relation-Method-Extract-News-DA-RNN-Model-For-Stock-Prediction
 
 
-Run model.py 
+Run model.py.
 
 # Reference
 1.This porject is referenced this paper:
