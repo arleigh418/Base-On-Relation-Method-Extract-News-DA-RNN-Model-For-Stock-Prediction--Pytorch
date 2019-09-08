@@ -11,7 +11,7 @@ Run model.py.
 
 3.We use FASTTEXT to deal with news data ,the method that training fasttext and count relation between news(Cosine) you can reference this   : https://github.com/arleigh418/Word-Embedding-With-Gensim   (Cosine method is in doc2vec_count_cos.py)
 
-tips:We add each word's vector from article to present one article vector .
+--> tips:We add each word's vector from article to present one article vector .
 
 4.We use the 'ta' package to count technical analysis in our data,please reference here: https://github.com/bukosabino/ta
 
