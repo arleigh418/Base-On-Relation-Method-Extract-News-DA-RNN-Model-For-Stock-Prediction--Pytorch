@@ -15,6 +15,8 @@ Run model.py.
 
 4.We use the 'ta' package to count technical analysis in our data,please reference here: https://github.com/bukosabino/ta
 
+5.Stock price come from : https://finance.yahoo.com/quote/2330.TW?p=2330.TW
+
 # How we do it ? 
 Please check Description.pdf.
 
