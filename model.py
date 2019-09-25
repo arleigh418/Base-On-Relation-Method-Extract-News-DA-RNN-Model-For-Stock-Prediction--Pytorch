@@ -272,7 +272,7 @@ class DA_rnn(nn.Module):
                 y_gt = self.y[indices + self.T]
                 trade_gt = self.trade[indices + self.T]
                 trend_gt = self.trend[indices + self.T]
-                # trade_gt = self.trade[indices + self.T]
+               
                 # format x into 3D tensor
                 for bs in range(len(indices)):
                     x[bs, :, :] = self.X[indices[bs]:(indices[bs] + self.T - 1), :]
@@ -281,11 +281,7 @@ class DA_rnn(nn.Module):
 
                 loss,acc_trade,acc_trend = self.train_forward(x, y_prev, y_gt,trend_gt,trade_gt)
                 
-                
-                # else:
-                #     no_up += 1
-                #     if no_up >= 1000:
-                #         exit()
+    
                 self.iter_losses[epoch * iter_per_epoch + idx // self.batch_size] = loss
                 
 
@@ -416,8 +412,7 @@ class DA_rnn(nn.Module):
 X, y,trade,trend= read_data("2330.TW_deal_sim.csv", debug=False)
 
 model = DA_rnn(X, y, trade, trend, 10, 512, 512, 256, 0.001, 50000)
-# model = torch.load('GOODONE.pkl',map_location='cpu')
-# model.load_state_dict(torch.load('best_model_acc83808380.model',map_location='cpu')) #this is for model.state_dict()
+
 y_train = model.train()
 torch.save(y_train,'model.pkl')
 
