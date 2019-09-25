@@ -414,7 +414,7 @@ X, y,trade,trend= read_data("2330.TW_deal_sim.csv", debug=False)
 model = DA_rnn(X, y, trade, trend, 10, 512, 512, 256, 0.001, 50000)
 
 y_train = model.train()
-torch.save(y_train,'model.pkl')
+torch.save(model,'model.pkl')
 
 y_pred = model.test()
 print(y_pred)
