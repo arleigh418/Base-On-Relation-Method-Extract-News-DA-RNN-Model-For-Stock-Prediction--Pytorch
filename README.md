@@ -3,6 +3,17 @@
 
 Run model.py.
 
+
+# Update
+### 1.2019/11/30 
+1.Us somebody need, I provide three function to show how we count vector, cos and getting sum of each day vector.If cos similar is not achieve your target(e.g. cos>0.7), then we also use top 30% to get more similar article with target center article, like below code:
+```
+np.percentile({article use} , {per}, interpolation='midpoint')
+```
+2.Not only add each vector to present one day news vector, we also get average to present one day vector to test(The excel file we provice is avg method). If you are interested, you can try it by yourself.
+(I will provide avg method, I can't find where avg method code QQ)
+
+
 # Reference
 1.This porject is referenced this paper:
 #### A Dual-Stage Attention-Based Recurrent Neural Network for Time Series Prediction (DARNN)_ Yao Qin, Dongjin Song, Haifeng Chen, Wei Cheng, Guofei Jiang, Garrison W. Cottrell, A Dual-Stage Attention-Based Recurrent Neural Network for Time Series Prediction, IJCAI, 2017.
@@ -25,9 +36,3 @@ Please check Description.pdf.
 1.GOODONE.pkl is the model we train.
 2.We know that there are still much left for improvement,we are trying to make this model better. If you have any question , please contact me for free.
 
-# Update
-### 1.2019/11/30 
-Us somebody need, I provide three function to show how we count vector, cos and getting sum of each day vector.If cos similar is not achieve your target(e.g. cos>0.7), then we also use top 30% to get more similar article with target center article, like below code:
-```
-np.percentile({article use} , {per}, interpolation='midpoint')
-```
