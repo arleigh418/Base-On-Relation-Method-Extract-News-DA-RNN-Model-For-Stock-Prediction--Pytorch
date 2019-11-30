@@ -24,3 +24,9 @@ Please check Description.pdf.
 
 1.GOODONE.pkl is the model we train.
 2.We know that there are still much left for improvement,we are trying to make this model better. If you have any question , please contact me for free.
+
+# Update
+1.2019/11/30 Us somebody need, I provide three function to show how we count vector, cos and getting sum of each day vector.If cos similar is not achieve your target(e.g. 0.7), then we also use top 70% to get more similar article with target center article, like below code:
+```
+np.percentile({article use} , {per}, interpolation='midpoint')
+```
