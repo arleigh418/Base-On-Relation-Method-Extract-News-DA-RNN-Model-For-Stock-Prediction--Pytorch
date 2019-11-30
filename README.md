@@ -5,7 +5,7 @@ Run model.py.
 
 
 # Update
-### 1.2019/11/30 
+### 2019/11/30 
 1.Us somebody need, I provide three function to show how we count vector, cos and getting sum of each day vector.If cos similar is not achieve your target(e.g. cos>0.7), then we also use top 30% to get more similar article with target center article, like below code:
 ```
 np.percentile({article use} , {per}, interpolation='midpoint')
