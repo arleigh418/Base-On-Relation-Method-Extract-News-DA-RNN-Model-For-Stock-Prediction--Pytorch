@@ -13,7 +13,7 @@ np.percentile({article use} , {per}, interpolation='midpoint')
 
 2.Not only add each day vector to present one day news imformation vector, we also get average to present one day vector to test(the excel file we provice is avg method). If you are interested, you can try it by yourself.
 
-(I will provide avg method, I can't find where avg method code now QQ)
+(I will provide avg method, I can't find avg method code now QQ)
 
 
 # Reference
