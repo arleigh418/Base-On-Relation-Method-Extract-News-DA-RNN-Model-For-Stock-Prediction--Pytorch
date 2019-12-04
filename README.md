@@ -12,10 +12,11 @@ Run model.py.
 np.percentile({article use} , {per}, interpolation='midpoint')
 ```
 
-2.Not only add each day vector to present one day news imformation vector, we also get average to present one day vector to test(the excel file we provice is avg method). If you are interested, you can try it by yourself.
+2.Not only add each day vector to present one day news imformation vector, we also get average to present one day vector to test(the excel file we provided is avg method). If you are interested, you can try it by yourself.
 
 (I will provide avg method, I can't find avg method code now QQ)
 
+3.I highly suggest you to clean each article(news) by Stopword or other method.
 
 # Reference
 1.This porject is referenced this paper:
