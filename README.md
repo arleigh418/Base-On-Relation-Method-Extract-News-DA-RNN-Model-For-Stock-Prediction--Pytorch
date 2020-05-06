@@ -5,6 +5,10 @@ Run model.py.
 
 
 # Update
+### 2020/5/6
+1.How I deal with article vector, you may can follow this relation work :https://github.com/arleigh418/How-Much-News-Should-We-Extract-For-Stock-Price-Prediction/tree/master/Stage1_Replace%20Company%20Name%20Train%20Embedding
+2.How to use ta package and add each article vector you may can refer : https://github.com/arleigh418/How-Much-News-Should-We-Extract-For-Stock-Price-Prediction/tree/master/Stage2_2Count%20TA%20%26%20Merge%20Stock%20Price%20And%20Article
+
 ### 2019/11/30
 ### Add data_prepare.py
 1.As somebody need, I provide three function to show how we count vector, cos and getting sum of each day vector.If cos similar is not achieve your target(e.g. cos>0.7), then we also use top 30% to get more similar article with target center article, like below code:
