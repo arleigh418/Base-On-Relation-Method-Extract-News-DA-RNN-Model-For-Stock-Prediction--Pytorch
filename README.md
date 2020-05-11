@@ -16,7 +16,7 @@ Run model.py.
 ```
 np.percentile({article use} , {per}, interpolation='midpoint')
 ```
-You can even use linear method
+You can even use 
 ```
 np.percentile({article use} , {per}, interpolation='linear')
 ```
