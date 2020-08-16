@@ -414,7 +414,7 @@ model = DA_rnn(X, y, trade, trend, 10, 512, 512, 256, 0.001, 50000)
 y_train = model.train()
 torch.save(model,'model.pkl')
 
-y_pred = model.test()
-print(y_pred)
+y_pred_price , y_pred_trade  , y_pred_trend = model.test()
+
     
         
