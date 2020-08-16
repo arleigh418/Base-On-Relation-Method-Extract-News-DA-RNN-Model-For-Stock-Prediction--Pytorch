@@ -395,18 +395,16 @@ class DA_rnn(nn.Module):
             y_history = Variable(torch.from_numpy(y_history).type(torch.FloatTensor))
             _, input_encoded = self.Encoder(Variable(torch.from_numpy(X).type(torch.FloatTensor)))
             # y_pred[i:(i + self.batch_size)] = self.Decoder(input_encoded, y_history).cpu().data.numpy()[:, 0]
-            y_pred_price, y_pred_trend, y_pred_trade = self.Decoder(input_encoded, y_history)
+            y_pred_price_output, y_pred_trend_output, y_pred_trade_output = self.Decoder(input_encoded, y_history)
             
-            y_pred_price = y_pred_price[i:(i + self.batch_size)]
-            y_pred_price = y_pred_price.cpu().detach().numpy()[:, 0]
-            y_pred_trend =  y_pred_trend[i:(i + self.batch_size)]
-            
-            y_pred_trade = y_pred_trade[i:(i + self.batch_size)]
+            y_pred_price[i:(i + self.batch_size)] = y_pred_price_output.cpu().data.numpy()[:, 0]         
+            y_pred_trade[i:(i + self.batch_size)] = torch.max( y_pred_trade_output,1)[1]
+            y_pred_trend[i:(i + self.batch_size)] =   torch.max( y_pred_trend_output,1)[1]
             
             
             
             i += self.batch_size
-        return y_pred_price , torch.max(y_pred_trade,1)[1] , torch.max(y_pred_trend,1)[1]
+        return y_pred_price , y_pred_trade  , y_pred_trend
 
 
 X, y,trade,trend= read_data("2330.TW_deal_sim.csv", debug=False)
